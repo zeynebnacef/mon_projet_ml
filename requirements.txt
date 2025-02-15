@@ -1,0 +1,27 @@
+# Bibliothèques de base
+pandas
+numpy
+scikit-learn
+matplotlib
+seaborn
+
+# Gestion des modèles et expérimentations
+mlflow
+joblib
+
+# Déploiement et API
+fastapi
+uvicorn
+
+# Tests et qualité du code
+pytest
+pytest-cov
+flake8
+black
+isort
+
+# Gestion des données déséquilibrées
+imbalanced-learn
+
+# Autres utilitaires
+python-dotenv

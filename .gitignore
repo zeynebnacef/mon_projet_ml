@@ -1,0 +1,42 @@
+# Fichiers de données volumineux
+data/
+models/
+
+# Fichiers Python temporaires
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environnements virtuels
+venv/
+.env/
+.venv/
+env/
+
+# Fichiers de configuration sensibles
+.env
+*.key
+*.secret
+
+# Notebooks Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Fichiers de sauvegarde
+*.bak
+*.tmp
+
+# Fichiers de logs
+*.log
+
+# Fichiers de cache
+.cache/
+
+# Fichiers de système d'exploitation
+.DS_Store
+Thumbs.db
+
+# Fichiers de développement
+.idea/
+.vscode/

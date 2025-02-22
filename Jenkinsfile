@@ -24,7 +24,7 @@ pipeline {
         }
         stage('Evaluate Model') {
             steps {
-                sh 'python3 src/main.py --test data/test.csv --evaluate'
+                sh 'python3 src/main.py --train-data data/train.csv --test data/test.csv --evaluate'
             }
         }
         stage('Deploy Model') {

@@ -5,7 +5,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Utilisez les credentials pour cloner le dépôt Git
-                git branch: 'main',
+                git branch: 'master',
                     url: 'https://github.com/zeynebnacef/mon_projet_ml.git',
                     credentialsId: 'zeyneb'  // Remplacez par l'ID de vos credentials
             }

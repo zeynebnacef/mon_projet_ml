@@ -18,9 +18,9 @@ pipeline {
             }
         }
         stage('Train Model') {
-            steps {
-                sh 'python3 src/main.py --train data/train.csv --test data/test.csv --train'
-            }
+       	    steps {
+                sh 'python3 src/main.py --train-data data/train.csv --test data/test.csv --train'
+           }
         }
         stage('Evaluate Model') {
             steps {

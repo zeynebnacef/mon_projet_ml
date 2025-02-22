@@ -9,7 +9,7 @@ def prepare_only(train_path, test_path):
     print(f"📊 X_train shape: {X_train.shape}")
     print(f"📊 X_test shape: {X_test.shape}")
 
-def main(train_path, test_path, prepare_only_flag=False, predict_flag=False):
+def main(train_path, test_path, prepare_only_flag=False, predict_flag=False, train_flag=False):
     if prepare_only_flag:
         prepare_only(train_path, test_path)
     elif predict_flag:
@@ -24,7 +24,7 @@ def main(train_path, test_path, prepare_only_flag=False, predict_flag=False):
         # Faire la prédiction
         prediction = predict(sample_features)
         print(f"\n🎯 Prediction Result: {prediction}")
-    else:
+    elif train_flag:
         X_train, X_test, y_train, y_test, X_cluster, y_cluster = prepare_data(train_path, test_path)
         print("\n✅ Data Preparation Completed!")
 
@@ -49,19 +49,22 @@ def main(train_path, test_path, prepare_only_flag=False, predict_flag=False):
         print("\n📊 Evaluating the model...")
         evaluate_model(model, X_test, y_test)
         print("✅ Model evaluation successful!")
+    else:
+        print("❌ No action specified. Use --prepare, --train, --evaluate, or --predict.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Test the prepare_data function")
-    parser.add_argument("--train", type=str, required=True, help="Path to the training CSV file")
+    parser.add_argument("--train-data", type=str, required=True, help="Path to the training CSV file")
     parser.add_argument("--test", type=str, required=True, help="Path to the test CSV file")
-    parser.add_argument("--evaluate", action="store_true")
+    parser.add_argument("--evaluate", action="store_true", help="Evaluate the model")
     parser.add_argument("--prepare", action="store_true", help="Only prepare the data, don't train the model")
     parser.add_argument("--predict", action="store_true", help="Run a prediction using a trained model")
+    parser.add_argument("--train", action="store_true", help="Train the model")
 
     args = parser.parse_args()
     
-    # Vérifier que train et test sont requis sauf si on fait uniquement une prédiction
-    if not args.predict and (args.train is None or args.test is None):
-        parser.error("❌ Les arguments --train et --test sont requis sauf si --predict est utilisé.")
+    # Vérifier que train-data et test sont requis sauf si on fait uniquement une prédiction
+    if not args.predict and (args.train_data is None or args.test is None):
+        parser.error("❌ Les arguments --train-data et --test sont requis sauf si --predict est utilisé.")
 
-    main(args.train, args.test, prepare_only_flag=args.prepare, predict_flag=args.predict)
+    main(args.train_data, args.test, prepare_only_flag=args.prepare, predict_flag=args.predict, train_flag=args.train)

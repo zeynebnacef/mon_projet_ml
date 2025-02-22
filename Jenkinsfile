@@ -14,13 +14,13 @@ pipeline {
         }
         stage('Prepare Data') {
             steps {
-                sh 'python3 src/main.py --train data/train.csv --test data/test.csv --prepare'
+                sh 'python3 src/main.py --train-data data/train.csv --test data/test.csv --prepare'
             }
         }
         stage('Train Model') {
-       	    steps {
+            steps {
                 sh 'python3 src/main.py --train-data data/train.csv --test data/test.csv --train'
-           }
+            }
         }
         stage('Evaluate Model') {
             steps {

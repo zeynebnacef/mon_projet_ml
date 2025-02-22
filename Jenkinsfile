@@ -4,7 +4,10 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/votre-utilisateur/votre-depot.git'
+                // Utilisez les credentials pour cloner le dépôt Git
+                git branch: 'main',
+                    url: 'https://github.com/zeynebnacef/mon_projet_ml.git',
+                    credentialsId: 'zeyneb'  // Remplacez par l'ID de vos credentials
             }
         }
 

@@ -6,12 +6,6 @@ pipeline {
                 git branch: 'master', url: 'https://github.com/zeynebnacef/mon_projet_ml.git'
             }
         }
-        stage('Set Up Virtual Environment') {
-            steps {
-                sh 'python3 -m venv venv'
-                sh 'source venv/bin/activate'
-            }
-        }
         stage('Install Dependencies') {
             steps {
                 sh 'python3 -m pip install --upgrade pip'

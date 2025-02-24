@@ -89,7 +89,7 @@ pipeline {
                 archiveArtifacts artifacts: 'artifacts/**', allowEmptyArchive: true
             }
         }
-    }
+    
     post {
         failure {
             echo 'Pipeline failed!'

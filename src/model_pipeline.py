@@ -140,15 +140,6 @@ def evaluate_model(model, X_test, y_test):
     plt.title("Confusion Matrix")
     plt.xlabel("Predicted")
     plt.ylabel("Actual")
-    # Save results to a JSON file
-    results = {
-    	"accuracy": accuracy,
-    	"classification_report": report,
-    	"confusion_matrix": cm
-    }
-
-    with open("evaluation_results.json", "w") as f:
-    	json.dump(results, f, indent=4)
  
 
     # Print results

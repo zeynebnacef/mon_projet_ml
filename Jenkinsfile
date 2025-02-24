@@ -1,53 +1,57 @@
 pipeline {
     agent any
-
     stages {
         stage('Checkout') {
             steps {
                 git branch: 'master', url: 'https://github.com/zeynebnacef/mon_projet_ml.git'
             }
         }
-
-
         stage('Install Dependencies') {
             steps {
-                sh 'source venv/bin/activate && pip install -r requirements.txt'
+                sh 'python3 -m pip install --upgrade pip'
+                sh 'python3 -m pip install --ignore-installed -r requirements.txt'
+            }
+        }
+        stage('Run Unit Tests') {
+            steps {
+                sh 'python3 -m pytest tests/test_data_preparation.py'
+                sh 'python3 -m pytest tests/test_model_training.py'
+                sh 'python3 -m pytest tests/test_model_evaluation.py'
+                sh 'python3 -m pytest tests/test_predict.py'
             }
         }
 
-        stage('Run Unit Tests') {
+        stage('Run Integration Tests') {
             steps {
-                sh 'source venv/bin/activate && pytest tests/ --junitxml=test-results/unit-tests.xml'
+                sh 'python3 -m pytest tests/test_integration.py'
             }
-            post {
-                always {
-                    archiveArtifacts artifacts: 'test-results/unit-tests.xml', allowEmptyArchive: true
-                }
+        }
+
+        stage('Run Performance Tests') {
+            steps {
+                sh 'python3 -m pytest tests/test_performance.py'
             }
         }
 
         stage('Prepare Data') {
             steps {
-                sh 'source venv/bin/activate && python3 src/main.py --train-data data/train.csv --test data/test.csv --prepare'
+                sh 'python3 src/main.py --train-data data/train.csv --test data/test.csv --prepare'
             }
         }
-
         stage('Train Model') {
             steps {
-                sh 'source venv/bin/activate && python3 src/main.py --train-data data/train.csv --test data/test.csv --train'
+                sh 'python3 src/main.py --train-data data/train.csv --test data/test.csv --train'
             }
         }
-
         stage('Evaluate Model') {
             steps {
-                sh 'source venv/bin/activate && python3 src/main.py --train-data data/train.csv --test data/test.csv --evaluate'
+                sh 'python3 src/main.py --train-data data/train.csv --test data/test.csv --evaluate'
             }
         }
     }
-
     post {
         failure {
-            echo 'Pipeline failed! Check the logs for details.'
+            echo 'Pipeline failed!'
         }
         success {
             echo 'Pipeline succeeded!'

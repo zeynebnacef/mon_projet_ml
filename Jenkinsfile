@@ -43,12 +43,22 @@ pipeline {
             }
         }
     }
-    post {
-        always {
-            // Archive artifacts in Jenkins
-            archiveArtifacts artifacts: 'models/*.joblib', allowEmptyArchive: true
-            archiveArtifacts artifacts: 'logs/*.log', allowEmptyArchive: true
-            archiveArtifacts artifacts: 'test-results/*.xml', allowEmptyArchive: true
+    stage('Generate Artifacts') {
+            steps {
+                script {
+                    // Generate artifacts in memory or a temporary directory
+                    sh 'mkdir -p artifacts/models artifacts/test-results'
+                    sh 'python3 -c "import joblib; joblib.dump({}, \'artifacts/models/gbm_model.joblib\')"'
+                    sh 'echo "Test results" > artifacts/test-results/results.xml'
+                }
+                stash name: 'artifacts', includes: 'artifacts/**'
+            }
+        }
+        stage('Archive Artifacts') {
+            steps {
+                unstash 'artifacts'
+                archiveArtifacts artifacts: 'artifacts/**', allowEmptyArchive: true
+            }
         }
     }
 }

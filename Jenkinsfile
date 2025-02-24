@@ -42,8 +42,7 @@ pipeline {
                 sh 'python3 src/main.py --train-data data/train.csv --test data/test.csv --evaluate'
             }
         }
-    }
-    stage('Generate Artifacts') {
+        stage('Generate Artifacts') {
             steps {
                 script {
                     // Create directories for artifacts
@@ -89,7 +88,7 @@ pipeline {
                 archiveArtifacts artifacts: 'artifacts/**', allowEmptyArchive: true
             }
         }
-    
+    }
     post {
         failure {
             echo 'Pipeline failed!'
@@ -98,5 +97,4 @@ pipeline {
             echo 'Pipeline succeeded!'
         }
     }
-    
 }

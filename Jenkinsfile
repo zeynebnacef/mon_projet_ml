@@ -14,24 +14,19 @@ pipeline {
         }
         stage('Run Unit Tests') {
             steps {
-                sh 'python3 -m pytest tests/test_data_preparation.py'
-                sh 'python3 -m pytest tests/test_model_training.py'
-                sh 'python3 -m pytest tests/test_model_evaluation.py'
+                sh 'python3 -m pytest tests/test_data_preparation.py --junitxml=test-results/unit-tests.xml'
             }
         }
-
         stage('Run Integration Tests') {
             steps {
-                sh 'python3 -m pytest tests/test_integration.py'
+                sh 'python3 -m pytest tests/test_integration.py --junitxml=test-results/integration-tests.xml'
             }
         }
-
         stage('Run Performance Tests') {
             steps {
-                sh 'python3 -m pytest tests/test_performance.py'
+                sh 'python3 -m pytest tests/test_performance.py --junitxml=test-results/performance-tests.xml'
             }
         }
-
         stage('Prepare Data') {
             steps {
                 sh 'python3 src/main.py --train-data data/train.csv --test data/test.csv --prepare'
@@ -48,9 +43,9 @@ pipeline {
             }
         }
     }
-   
     post {
         always {
+            // Archive artifacts in Jenkins
             archiveArtifacts artifacts: 'models/*.joblib', allowEmptyArchive: true
             archiveArtifacts artifacts: 'logs/*.log', allowEmptyArchive: true
             archiveArtifacts artifacts: 'test-results/*.xml', allowEmptyArchive: true

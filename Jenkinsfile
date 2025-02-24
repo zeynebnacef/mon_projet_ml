@@ -6,6 +6,11 @@ pipeline {
                 git branch: 'master', url: 'https://github.com/zeynebnacef/mon_projet_ml.git'
             }
         }
+        stage('Activate Virtual Environment') {
+            steps {
+                sh 'source venv/bin/activate'
+            }
+        }
         stage('Install Dependencies') {
             steps {
                 sh 'python3 -m pip install --upgrade pip'
@@ -14,12 +19,7 @@ pipeline {
         }
         stage('Unit Tests') {
             steps {
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    sh '''
-                        . ${VENV_PATH}/bin/activate
-                        export PYTHONPATH=${WORKSPACE}  # Ajouter le répertoire de travail au PYTHONPATH
-                        pytest --cov=src --cov-report=xml --junitxml=pytest_report.xml tests/
-                    '''
+                sh 'pytest tests/'
                 }
             }
             post {

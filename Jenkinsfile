@@ -49,23 +49,27 @@ pipeline {
             }
         }
     }
+    stage('Construire l\'Image Docker') {
+            steps {
+                sh 'docker build -t mon_projet_ml .'
+            }
+        }
+
+        stage('Pousser l\'Image Docker') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'zeyneb', usernameVariable: 'zeyneb436', passwordVariable: 'zeyneb')]) {
+                    sh 'docker login -u $DOCKER_USER -p $DOCKER_PASSWORD'
+                    sh 'docker tag mon_projet_ml zeyneb436/mon_projet_ml:latest'
+                    sh 'docker push zeyneb436/mon_projet_ml:latest'
+                }
+            }
+        }
+    }
     post {
     always {
         archiveArtifacts artifacts: 'models/*.joblib', allowEmptyArchive: true
         archiveArtifacts artifacts: 'logs/*.log', allowEmptyArchive: true
         archiveArtifacts artifacts: 'test-results/*.xml', allowEmptyArchive: true
     }
-    }
-    stage('Construire l\'Image Docker') {
-    steps {
-        sh 'docker build -t mon_projet_ml .'
-    }
-}
 
-    stage('Pousser l\'Image Docker') {
-    steps {
-        sh 'docker tag mon_projet_ml mon_docker_registry/mon_projet_ml:latest'
-        sh 'docker push mon_docker_registry/mon_projet_ml:latest'
-    }
-    }
 }

@@ -17,7 +17,6 @@ pipeline {
                 sh 'python3 -m pytest tests/test_data_preparation.py'
                 sh 'python3 -m pytest tests/test_model_training.py'
                 sh 'python3 -m pytest tests/test_model_evaluation.py'
-                
             }
         }
 
@@ -51,10 +50,10 @@ pipeline {
     }
    
     post {
-    always {
-        archiveArtifacts artifacts: 'models/*.joblib', allowEmptyArchive: true
-        archiveArtifacts artifacts: 'logs/*.log', allowEmptyArchive: true
-        archiveArtifacts artifacts: 'test-results/*.xml', allowEmptyArchive: true
+        always {
+            archiveArtifacts artifacts: 'models/*.joblib', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'logs/*.log', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'test-results/*.xml', allowEmptyArchive: true
+        }
     }
-
 }

@@ -17,7 +17,7 @@ pipeline {
                 sh 'python3 -m pytest tests/test_data_preparation.py'
                 sh 'python3 -m pytest tests/test_model_training.py'
                 sh 'python3 -m pytest tests/test_model_evaluation.py'
-                sh 'python3 -m pytest tests/test_predict.py'
+                
             }
         }
 

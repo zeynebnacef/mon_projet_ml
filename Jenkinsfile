@@ -8,12 +8,6 @@ pipeline {
             }
         }
 
-        stage('Set Up Virtual Environment') {
-            steps {
-                sh 'python3 -m venv venv'
-                sh 'source venv/bin/activate && pip install --upgrade pip'
-            }
-        }
 
         stage('Install Dependencies') {
             steps {

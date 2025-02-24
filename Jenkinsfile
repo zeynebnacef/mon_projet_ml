@@ -60,5 +60,5 @@ pipeline {
                 archiveArtifacts artifacts: 'artifacts/**', allowEmptyArchive: true
             }
         }
-    }
+    
 }

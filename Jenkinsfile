@@ -50,11 +50,22 @@ pipeline {
         }
     }
     post {
-        failure {
-            echo 'Pipeline failed!'
-        }
-        success {
-            echo 'Pipeline succeeded!'
-        }
+    always {
+        archiveArtifacts artifacts: 'models/*.joblib', allowEmptyArchive: true
+        archiveArtifacts artifacts: 'logs/*.log', allowEmptyArchive: true
+        archiveArtifacts artifacts: 'test-results/*.xml', allowEmptyArchive: true
+    }
+    }
+    stage('Construire l\'Image Docker') {
+    steps {
+        sh 'docker build -t mon_projet_ml .'
+    }
+}
+
+    stage('Pousser l\'Image Docker') {
+    steps {
+        sh 'docker tag mon_projet_ml mon_docker_registry/mon_projet_ml:latest'
+        sh 'docker push mon_docker_registry/mon_projet_ml:latest'
+    }
     }
 }

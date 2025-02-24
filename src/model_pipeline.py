@@ -144,7 +144,7 @@ def evaluate_model(model, X_test, y_test):
     results = {
     	"accuracy": accuracy,
     	"classification_report": report,
-    	"confusion_matrix": conf_matrix
+    	"confusion_matrix": cm
     }
 
     with open("evaluation_results.json", "w") as f:

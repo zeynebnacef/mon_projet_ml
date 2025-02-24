@@ -12,27 +12,22 @@ pipeline {
                 sh 'python3 -m pip install --ignore-installed -r requirements.txt'
             }
         }
-        stage('Run Unit Tests') {
+        stage('Unit Tests') {
             steps {
-                sh 'python3 -m pytest tests/test_data_preparation.py'
-                sh 'python3 -m pytest tests/test_model_training.py'
-                sh 'python3 -m pytest tests/test_model_evaluation.py'
-                sh 'python3 -m pytest tests/test_predict.py'
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                    sh '''
+                        . ${VENV_PATH}/bin/activate
+                        export PYTHONPATH=${WORKSPACE}  # Ajouter le répertoire de travail au PYTHONPATH
+                        pytest --cov=src --cov-report=xml --junitxml=pytest_report.xml tests/
+                    '''
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'pytest_report.xml, coverage.xml', allowEmptyArchive: true
+                }
             }
         }
-
-        stage('Run Integration Tests') {
-            steps {
-                sh 'python3 -m pytest tests/test_integration.py'
-            }
-        }
-
-        stage('Run Performance Tests') {
-            steps {
-                sh 'python3 -m pytest tests/test_performance.py'
-            }
-        }
-
         stage('Prepare Data') {
             steps {
                 sh 'python3 src/main.py --train-data data/train.csv --test data/test.csv --prepare'

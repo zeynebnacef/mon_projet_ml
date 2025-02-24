@@ -43,45 +43,45 @@ pipeline {
             }
         }
         stage('Generate Artifacts') {
-            steps {
-                script {
-                    // Create directories for artifacts
-                    sh 'mkdir -p artifacts/models artifacts/test-results artifacts/evaluation-results'
+    steps {
+        script {
+            // Create directories for artifacts
+            sh 'mkdir -p artifacts/models artifacts/test-results artifacts/evaluation-results'
 
-                    // Save the trained model
-                    sh 'python3 -c "import joblib; joblib.dump({}, \'artifacts/models/gbm_model.joblib\')"'
+            // Save the trained model
+            sh 'python3 -c "import joblib; joblib.dump({}, \'artifacts/models/gbm_model.joblib\')"'
 
-                    // Save test results
-                    sh 'echo "Test results" > artifacts/test-results/results.xml'
+            // Save test results
+            sh 'echo "Test results" > artifacts/test-results/results.xml'
 
-                    // Save evaluation results (accuracy, classification report, etc.)
-                    sh '''
-                    python3 -c "
-                    import json
-                    from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+            // Save evaluation results (accuracy, classification report, etc.)
+            sh '''
+            python3 <<EOF
+            import json
+            from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
-                    # Example evaluation results
-                    y_true = [0, 1, 1, 0, 1]
-                    y_pred = [0, 1, 0, 0, 1]
+            # Example evaluation results
+            y_true = [0, 1, 1, 0, 1]
+            y_pred = [0, 1, 0, 0, 1]
 
-                    accuracy = accuracy_score(y_true, y_pred)
-                    report = classification_report(y_true, y_pred, output_dict=True)
-                    conf_matrix = confusion_matrix(y_true, y_pred).tolist()
+            accuracy = accuracy_score(y_true, y_pred)
+            report = classification_report(y_true, y_pred, output_dict=True)
+            conf_matrix = confusion_matrix(y_true, y_pred).tolist()
 
-                    # Save results to a JSON file
-                    results = {
-                        'accuracy': accuracy,
-                        'classification_report': report,
-                        'confusion_matrix': conf_matrix
-                    }
-                    with open('artifacts/evaluation-results/evaluation_results.json', 'w') as f:
-                        json.dump(results, f, indent=4)
-                    "
-                    '''
-                }
-                stash name: 'artifacts', includes: 'artifacts/**'
+            # Save results to a JSON file
+            results = {
+                'accuracy': accuracy,
+                'classification_report': report,
+                'confusion_matrix': conf_matrix
             }
+            with open('artifacts/evaluation-results/evaluation_results.json', 'w') as f:
+                json.dump(results, f, indent=4)
+            EOF
+            '''
         }
+        stash name: 'artifacts', includes: 'artifacts/**'
+    }
+}
         stage('Archive Artifacts') {
             steps {
                 unstash 'artifacts'

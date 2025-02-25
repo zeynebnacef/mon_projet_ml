@@ -10,8 +10,9 @@ from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.model_selection import RandomizedSearchCV
 from scipy.stats import randint, uniform
 import joblib
+import mlflow
+import mlflow.sklearn
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
-
 
 def prepare_data(train_path, test_path):
     """
@@ -87,7 +88,6 @@ def prepare_data(train_path, test_path):
 
     return X_train_scaled, X_test_scaled, y_train, y_test, X_cluster_scaled, y_cluster
 
-
 def train_model(X_train, y_train):
     """
     Train a Gradient Boosting Classifier with hyperparameter optimization.
@@ -119,41 +119,40 @@ def train_model(X_train, y_train):
 
     # Log hyperparameters and metrics to MLflow
     best_params = random_search.best_params_
-    
+    mlflow.log_params(best_params)
+
     # Return the best model
     return random_search.best_estimator_
 
-
 def evaluate_model(model, X_test, y_test):
-  
     # Make predictions
     y_pred = model.predict(X_test)
 
     # Calculate metrics
     accuracy = accuracy_score(y_test, y_pred)
-    report = classification_report(y_test, y_pred)
+    report = classification_report(y_test, y_pred, output_dict=True)
     cm = confusion_matrix(y_test, y_pred)
 
-        # Plot and log confusion matrix
+    # Plot and log confusion matrix
     plt.figure(figsize=(8, 6))
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
     plt.title("Confusion Matrix")
     plt.xlabel("Predicted")
     plt.ylabel("Actual")
- 
+    mlflow.log_figure(plt.gcf(), "confusion_matrix.png")
 
     # Print results
     print(f"\n✅ Evaluation Completed!")
     print(f"📊 Accuracy: {accuracy:.4f}")
-    print(f"📊 Classification Report:\n{report}")
+    print(f"📊 Classification Report:\n{classification_report(y_test, y_pred)}")
     print(f"📊 Confusion Matrix:\n{cm}")
 
+    return accuracy, report, cm
 
 def save_model(model, filename="gbm_model.joblib"):
-   
     joblib.dump(model, filename)
     print(f"\n💾 Model saved to '{filename}' and logged as an artifact.")
-
+    mlflow.log_artifact(filename)
 
 def load_model(filename="gbm_model.joblib"):
     """
@@ -162,8 +161,48 @@ def load_model(filename="gbm_model.joblib"):
     model = joblib.load(filename)
     print(f"\n📂 Model loaded from '{filename}'")
     return model
+
 def predict(features):
     model = joblib.load("gbm_model.joblib")
     prediction = model.predict(features)
     print(f"\n✅ Prediction Completed! Prediction: {prediction}")
     return prediction
+
+def log_metrics_to_mlflow(accuracy, report, conf_matrix):
+    # Log metrics to MLflow
+    mlflow.log_metric("accuracy", accuracy)
+    mlflow.log_metrics(report['weighted avg'])  # Log weighted average metrics
+    mlflow.log_dict({"confusion_matrix": conf_matrix.tolist()}, "confusion_matrix.json")
+
+def log_model_to_mlflow(model, model_name="model"):
+    # Log the model to MLflow
+    mlflow.sklearn.log_model(model, model_name)
+
+def run_mlflow_experiment(train_path, test_path):
+    # Start an MLflow run
+    with mlflow.start_run():
+        # Prepare data
+        X_train, X_test, y_train, y_test, _, _ = prepare_data(train_path, test_path)
+
+        # Train the model
+        model = train_model(X_train, y_train)
+
+        # Evaluate the model
+        accuracy, report, conf_matrix = evaluate_model(model, X_test, y_test)
+
+        # Log metrics and model to MLflow
+        log_metrics_to_mlflow(accuracy, report, conf_matrix)
+        log_model_to_mlflow(model)
+
+        # Save the model
+        save_model(model)
+
+        print(f"✅ Model evaluation completed! Accuracy: {accuracy:.4f}")
+
+if __name__ == "__main__":
+    # Set the paths to your train and test datasets
+    train_path = "path/to/train.csv"
+    test_path = "path/to/test.csv"
+
+    # Run the MLflow experiment
+    run_mlflow_experiment(train_path, test_path)

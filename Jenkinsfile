@@ -7,7 +7,7 @@ pipeline {
     stages {
         stage('Start Docker Services') {
             steps {
-                sh 'docker-compose up -d'
+                sh 'docker-compose up -d mlflow'
             }
         }
         stage('Checkout') {

@@ -42,7 +42,9 @@ pipeline {
                 sh 'python3 src/main.py --train-data data/train.csv --test data/test.csv --evaluate'
             }
         }
-        post {
+    }  // ✅ Correctly closing the 'stages' block here
+
+    post {  // ✅ 'post' should be outside of 'stages'
         failure {
             echo 'Pipeline failed!'
         }

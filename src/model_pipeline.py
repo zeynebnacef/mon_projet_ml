@@ -107,11 +107,12 @@ def train_model(X_train, y_train):
     random_search = RandomizedSearchCV(
         gb_model,
         param_distributions=param_dist,
-        n_iter=20,
-        cv=3,
+        n_iter=10,
+        cv=2,
         scoring='accuracy',
         verbose=1,
         n_jobs=-1
+        
     )
 
     # Train the model
@@ -120,6 +121,7 @@ def train_model(X_train, y_train):
     # Log hyperparameters and metrics to MLflow
     best_params = random_search.best_params_
     mlflow.log_params(best_params)
+    mlflow.log_metric("best_cv_score", random_search.best_score_)
 
     # Return the best model
     return random_search.best_estimator_
@@ -132,6 +134,9 @@ def evaluate_model(model, X_test, y_test):
     accuracy = accuracy_score(y_test, y_pred)
     report = classification_report(y_test, y_pred, output_dict=True)
     cm = confusion_matrix(y_test, y_pred)
+    # Log metrics to MLflow
+    mlflow.log_metric("accuracy", accuracy)
+  
 
     # Plot and log confusion matrix
     plt.figure(figsize=(8, 6))

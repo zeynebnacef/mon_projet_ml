@@ -6,8 +6,10 @@ from sklearn.metrics import accuracy_score
 import numpy as np
 
 # Configure MLflow to use PostgreSQL as the backend store
-mlflow.set_tracking_uri("postgresql://mlflow_user:zeyneb@db/mlflow_db")
-mlflow.set_experiment("Model_Training")
+
+mlflow.set_tracking_uri("postgresql://mlflow_user:zeyneb@postgres/mlflow_db2")
+
+mlflow.set_experiment("new_experiment")
 
 def prepare_only(train_path, test_path):
     """
@@ -35,36 +37,36 @@ def main(train_path, test_path, prepare_only_flag=False, predict_flag=False):
         # Simulate sample features for prediction (replace with actual data if needed)
         sample_features = np.random.rand(1, 8)  # Replace 8 with the correct feature dimension
 
-        # Log the model to MLflow and register it in the Model Registry
+        # Enregistrer le modèle dans MLflow
         with mlflow.start_run():
             mlflow.sklearn.log_model(loaded_model, "model")
 
-            # Register the model in the Model Registry
+            # Ajouter le modèle au Model Registry
             model_uri = f"runs:/{mlflow.active_run().info.run_id}/model"
             mlflow.register_model(model_uri, "gbm_model_predict")
-
             # Make a prediction
             prediction = predict(sample_features)
             print(f"\n🎯 Prediction Result: {prediction}")
 
-            # Log the prediction result to MLflow
-            mlflow.log_metric("prediction_result", prediction[0])
+       
     else:
         # Prepare the data
         X_train, X_test, y_train, y_test, X_cluster, y_cluster = prepare_data(train_path, test_path)
         print("\n✅ Data Preparation Completed!")
 
-        # Start an MLflow run for model training and evaluation
+        # 🚀 *Lancement d'une expérience MLflow*
         with mlflow.start_run():
             print("\n🚀 Training Model...")
-
-            # Train the model
+            
+            # Entraîner le modèle
             model = train_model(X_train, y_train)
-
-            # Log hyperparameters
-            mlflow.log_param("model_type", "GradientBoostingClassifier")  # Update based on your model
+            
+            # Logger les hyperparamètres
+            mlflow.log_param("model_type", "RandomForest")  # Exemple, adapte selon ton modèle
             mlflow.log_param("train_size", X_train.shape[0])
             mlflow.log_param("test_size", X_test.shape[0])
+
+
 
             # Save the model
             save_model(model)

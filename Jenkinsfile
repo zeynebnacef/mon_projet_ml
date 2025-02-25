@@ -43,49 +43,61 @@ pipeline {
             }
         }
         stage('Generate Artifacts') {
-    steps {
-        script {
-            // Create directories for artifacts
-            sh 'mkdir -p artifacts/models artifacts/test-results artifacts/evaluation-results'
+            steps {
+                script {
+                    // Ensure directories exist
+                    sh 'mkdir -p artifacts/models artifacts/test-results artifacts/evaluation-results'
 
-            // Save the trained model
-            sh 'python3 -c "import joblib; joblib.dump({}, \'artifacts/models/gbm_model.joblib\')"'
+                    // Save the trained model correctly
+                    sh '''
+                    python3 <<EOF
+                    import joblib
+                    import os
 
-            // Save test results
-            sh 'echo "Test results" > artifacts/test-results/results.xml'
+                    # Load the trained model (modify based on your training script)
+                    model_path = "artifacts/models/gbm_model.joblib"
+                    trained_model = "src/trained_model.joblib"  # Adjust based on your script output
 
-            // Save evaluation results (accuracy, classification report, etc.)
-            sh '''
-            python3 <<EOF
-            import json
-            from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+                    if os.path.exists(trained_model):
+                        joblib.dump(joblib.load(trained_model), model_path)
+                    else:
+                        print("Trained model not found!")
+                    EOF
+                    '''
 
-            # Example evaluation results
-            y_true = [0, 1, 1, 0, 1]
-            y_pred = [0, 1, 0, 0, 1]
+                    // Save test results
+                    sh 'echo "Test results" > artifacts/test-results/results.xml'
 
-            accuracy = accuracy_score(y_true, y_pred)
-            report = classification_report(y_true, y_pred, output_dict=True)
-            conf_matrix = confusion_matrix(y_true, y_pred).tolist()
+                    // Save evaluation results
+                    sh '''
+                    python3 <<EOF
+                    import json
+                    from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
-            # Save results to a JSON file
-            results = {
-                'accuracy': accuracy,
-                'classification_report': report,
-                'confusion_matrix': conf_matrix
+                    # Example evaluation results
+                    y_true = [0, 1, 1, 0, 1]
+                    y_pred = [0, 1, 0, 0, 1]
+
+                    accuracy = accuracy_score(y_true, y_pred)
+                    report = classification_report(y_true, y_pred, output_dict=True)
+                    conf_matrix = confusion_matrix(y_true, y_pred).tolist()
+
+                    # Save results to a JSON file
+                    results = {
+                        'accuracy': accuracy,
+                        'classification_report': report,
+                        'confusion_matrix': conf_matrix
+                    }
+                    with open('artifacts/evaluation-results/evaluation_results.json', 'w') as f:
+                        json.dump(results, f, indent=4)
+                    EOF
+                    '''
+                }
             }
-            with open('artifacts/evaluation-results/evaluation_results.json', 'w') as f:
-                json.dump(results, f, indent=4)
-            EOF
-            '''
         }
-        stash name: 'artifacts', includes: 'artifacts/**'
-    }
-}
         stage('Archive Artifacts') {
             steps {
-                unstash 'artifacts'
-                archiveArtifacts artifacts: 'artifacts/**', allowEmptyArchive: true
+                archiveArtifacts artifacts: 'artifacts/**', allowEmptyArchive: false
             }
         }
     }

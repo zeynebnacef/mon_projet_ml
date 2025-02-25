@@ -5,9 +5,15 @@ pipeline {
         MLFLOW_TRACKING_URI = "postgresql://mlflow_user:zeyneb@postgres/mlflow_db2"
     }
     stages {
+        stage('Clean Up Existing Containers') {
+            steps {
+                sh 'docker-compose down || true'  // Stop and remove existing containers
+            }
+        }
+
         stage('Start Docker Services') {
             steps {
-                sh 'docker-compose up -d mlflow'
+                sh 'docker-compose up -d'  // Start all services
             }
         }
         stage('Checkout') {

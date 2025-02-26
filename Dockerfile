@@ -1,24 +1,21 @@
-# Use a Python base image
+# Utiliser une image de base Python
 FROM python:3.8-slim
 
-# Set the working directory in the container
+# Définir le répertoire de travail dans le conteneur
 WORKDIR /app
 
-# Copy necessary files into the container
+# Copier les fichiers nécessaires dans le conteneur
 COPY requirements.txt .
 COPY src/ ./src/
 COPY tests/ ./tests/
 COPY data/ ./data/
 
-# Install Python dependencies
+# Installer les dépendances Python
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Install additional dependencies for MLflow and PostgreSQL
-RUN pip install mlflow psycopg2-binary
-
-# Expose the port for the application
+# Exposer le port sur lequel l'application va écouter (si vous avez une API)
 EXPOSE 5000
 
-# Default command to run the application
-CMD ["sh", "-c", "mlflow server --backend-store-uri postgresql://mlflow_user:zeyneb@postgres2:5432/mlflow_db2 --default-artifact-root /mlflow/artifacts --host 0.0.0.0"]
+# Commande par défaut pour exécuter l'application
+CMD ["python3", "src/main.py", "--train-data", "data/train.csv", "--test", "data/test.csv", "--train"]

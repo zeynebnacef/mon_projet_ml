@@ -1,10 +1,5 @@
 pipeline {
     agent any
-
-    environment {
-        
-        MLFLOW_TRACKING_URI = "postgresql://mlflow_user:zeyneb@localhost:5432/mlflow_db2"
-    }
     stages {
         stage('Checkout') {
             steps {

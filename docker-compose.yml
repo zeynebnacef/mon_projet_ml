@@ -1,14 +1,15 @@
 version: '3.8'
 
 services:
-    mlflow:
-    build: .
-    container_name: mlflow2
-    restart: always
+  ml_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ml_app
     ports:
-      - "5003:5000"  # Expose MLflow UI on port 5002
-    environment:
-      - MLFLOW_TRACKING_URI=postgresql://mlflow_user:zeyneb@localhost:5432/mlflow_db2
+      - "5000:5000"  # Expose le port 5000 de l'application
     volumes:
-      - ./mlflow_artifacts2:/mlflow/artifacts
-
+      - .:/app  # Monte le répertoire courant dans /app pour le développement
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: python3 src/main.py --train-data data/train.csv --test data/test.csv --train

@@ -17,7 +17,6 @@ pipeline {
                 sh 'python3 -m pytest tests/test_data_preparation.py --junitxml=test-results/unit-tests.xml'
             }
         }
-     
         stage('Run Performance Tests') {
             steps {
                 sh 'python3 -m pytest tests/test_performance.py --junitxml=test-results/performance-tests.xml'
@@ -25,17 +24,17 @@ pipeline {
         }
         stage('Prepare Data') {
             steps {
-                sh 'python3 src/main.py --train-data data/train.csv --test data/test.csv --prepare'
+                sh 'python3 src/main.py --train data/train.csv --test data/test.csv --prepare'
             }
         }
         stage('Train Model') {
             steps {
-                sh 'python3 src/main.py --train-data data/train.csv --test data/test.csv --train'
+                sh 'python3 src/main.py --train data/train.csv --test data/test.csv'
             }
         }
         stage('Evaluate Model') {
             steps {
-                sh 'python3 src/main.py --train-data data/train.csv --test data/test.csv --evaluate'
+                sh 'python3 src/main.py --train data/train.csv --test data/test.csv --evaluate'
             }
         }
     }  // ✅ Correctly closing the 'stages' block here

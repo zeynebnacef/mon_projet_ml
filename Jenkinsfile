@@ -2,12 +2,13 @@ pipeline {
     agent any
 
     environment {
-        MLFLOW_TRACKING_URI = "postgresql://mlflow_user:zeyneb@postgres/mlflow_db2"
+        
+        MLFLOW_TRACKING_URI = "postgresql://mlflow_user:zeyneb@postgres2/mlflow_db2"
     }
     stages {
         stage('Start Docker Services') {
             steps {
-                sh 'docker-compose up -d --no-recreate'  // Start containers without recreating them
+                sh 'docker-compose up -d --no-recreate' 
             }
         }
         stage('Checkout') {

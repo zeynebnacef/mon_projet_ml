@@ -7,7 +7,7 @@ import numpy as np
 
 # Configure MLflow to use PostgreSQL as the backend store
 
-mlflow.set_tracking_uri("postgresql://mlflow_user:zeyneb@postgres/mlflow_db2")
+mlflow.set_tracking_uri("postgresql://mlflow_user:zeyneb@postgres2/mlflow_db2")
 
 mlflow.set_experiment("new_experiment")
 

@@ -21,4 +21,4 @@ RUN pip install mlflow psycopg2-binary
 EXPOSE 5000
 
 # Default command to run the application
-CMD ["sh", "-c", "mlflow server --backend-store-uri postgresql://mlflow_user:zeyneb@postgres:5432/mlflow_db2 --default-artifact-root /mlflow/artifacts --host 0.0.0.0"]
+CMD ["sh", "-c", "mlflow server --backend-store-uri postgresql://mlflow_user:zeyneb@postgres2:5432/mlflow_db2 --default-artifact-root /mlflow/artifacts --host 0.0.0.0"]

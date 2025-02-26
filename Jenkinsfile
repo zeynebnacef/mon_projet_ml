@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         
-        MLFLOW_TRACKING_URI = "postgresql://mlflow_user:zeyneb@postgres2/mlflow_db2"
+        MLFLOW_TRACKING_URI = "postgresql://mlflow_user:zeyneb@localhost:5432/mlflow_db2"
     }
     stages {
         stage('Checkout') {

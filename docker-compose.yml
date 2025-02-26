@@ -1,44 +1,14 @@
 version: '3.8'
 
 services:
-  postgres2:
-    image: postgres:13  # Use the official postgres image
-    container_name: postgres2
-    environment:
-      - POSTGRES_USER=mlflow_user
-      - POSTGRES_PASSWORD=zeyneb
-      - POSTGRES_DB=mlflow_db2
-    ports:
-      - "5433:5432"  # Expose PostgreSQL on port 5433
-    volumes:
-      - postgres_data:/var/lib/postgresql/data  # Persist PostgreSQL data
-    networks:
-      - mlflow-network1
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mlflow_user -d mlflow_db2"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  mlflow:
+    mlflow:
     build: .
     container_name: mlflow2
     restart: always
     ports:
       - "5003:5000"  # Expose MLflow UI on port 5002
     environment:
-      - MLFLOW_TRACKING_URI=postgresql://mlflow_user:zeyneb@postgres2:5432/mlflow_db2
+      - MLFLOW_TRACKING_URI=postgresql://mlflow_user:zeyneb@localhost:5432/mlflow_db2
     volumes:
       - ./mlflow_artifacts2:/mlflow/artifacts
-    depends_on:
-      postgres2:
-        condition: service_healthy
-    networks:
-      - mlflow-network1
 
-volumes:
-  postgres_data:
-
-networks:
-  mlflow-network1:
-    driver: bridge

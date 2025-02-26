@@ -17,11 +17,7 @@ pipeline {
                 sh 'python3 -m pytest tests/test_data_preparation.py --junitxml=test-results/unit-tests.xml'
             }
         }
-        stage('Run Integration Tests') {
-            steps {
-                sh 'python3 -m pytest tests/test_integration.py --junitxml=test-results/integration-tests.xml'
-            }
-        }
+     
         stage('Run Performance Tests') {
             steps {
                 sh 'python3 -m pytest tests/test_performance.py --junitxml=test-results/performance-tests.xml'

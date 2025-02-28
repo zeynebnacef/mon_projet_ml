@@ -52,9 +52,28 @@ pipeline {
         stage('Verify Prediction in MLflow') {
             steps {
                 script {
-                    // Check MLflow for the latest prediction
-                    def prediction = sh(script: 'mlflow runs search --experiment-name "Predictions" --order-by "attribute.start_time DESC" --max-results 1', returnStdout: true).trim()
-                    if (prediction.contains("prediction")) {
+                    // Use Python script to query MLflow
+                    def predictionFound = sh(script: '''
+                        python3 -c "
+                        import mlflow
+                        from mlflow.tracking import MlflowClient
+
+                        client = MlflowClient()
+                        experiment = client.get_experiment_by_name('Predictions')
+                        if experiment:
+                            runs = client.search_runs(experiment.experiment_id, order_by=['attributes.start_time DESC'], max_results=1)
+                            if runs:
+                                print('Prediction found in MLflow!')
+                            else:
+                                print('No prediction found in MLflow!')
+                                exit(1)
+                        else:
+                            print('Experiment not found in MLflow!')
+                            exit(1)
+                        "
+                    ''', returnStdout: true).trim()
+
+                    if (predictionFound.contains("Prediction found in MLflow!")) {
                         echo 'Prediction successfully logged in MLflow!'
                     } else {
                         error 'Prediction not found in MLflow!'

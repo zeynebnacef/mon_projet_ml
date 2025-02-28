@@ -27,7 +27,10 @@ def predict():
 
         # Make a prediction
         prediction = model.predict(features_array)
-
+# Log the prediction to MLflow
+        with mlflow.start_run():
+            mlflow.log_param("input_features", features)
+            mlflow.log_metric("prediction", prediction[0])
         # Return the prediction as JSON
         return jsonify({'prediction': prediction.tolist()})
     except Exception as e:

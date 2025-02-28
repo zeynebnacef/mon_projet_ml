@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/0/515b0e154e6c4e47bc7adb45952b1ed5/artifacts
+end_time: 1740782572604
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 515b0e154e6c4e47bc7adb45952b1ed5
+run_name: persistent-lynx-88
+run_uuid: 515b0e154e6c4e47bc7adb45952b1ed5
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1740782572574
+status: 3
+tags: []
+user_id: zeyneb

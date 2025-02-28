@@ -1,9 +1,14 @@
 from flask import Flask, request, jsonify, send_from_directory
 import joblib
 import numpy as np
+import mlflow
+import mlflow.pyfunc
 
 # Initialize Flask app
 app = Flask(__name__)
+
+mlflow.set_tracking_uri("postgresql://mlflow_user:zeyneb@localhost:5432/mlflow_db2")
+mlflow.set_experiment("Predictions")  # Create a dedicated experiment for predictions
 
 # Load the pre-trained model
 MODEL_PATH = "gbm_model.joblib"
@@ -27,10 +32,12 @@ def predict():
 
         # Make a prediction
         prediction = model.predict(features_array)
-# Log the prediction to MLflow
+
+        # Log the prediction to MLflow
         with mlflow.start_run():
             mlflow.log_param("input_features", features)
             mlflow.log_metric("prediction", prediction[0])
+
         # Return the prediction as JSON
         return jsonify({'prediction': prediction.tolist()})
     except Exception as e:

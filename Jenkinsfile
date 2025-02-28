@@ -37,16 +37,22 @@ pipeline {
                 sh 'python3 src/main.py --train data/train.csv --test data/test.csv --evaluate'
             }
         }
-        stage('Deploy Flask App') {
+        // Stage 5: Test the Flask app and track predictions
+        stage('Test Flask App') {
             steps {
-                // Stop any existing Flask app (if running)
-            	sh 'pkill -f "python3 app.py" || true'
+                // Wait for the Flask app to start
+                sh 'sleep 10'
 
-      		  // Start the Flask app in the background
-        	sh 'nohup python3 app.py > flask.log 2>&1 &'
-       		echo 'Flask app deployed and running on port 5005'
-    		}
-	}
+                // Send a test prediction request
+                sh '''
+                curl -X POST http://localhost:5005/predict -H "Content-Type: application/json" -d '{"features": [1, 2, 3, 4, 5, 6, 7, 8]}'
+                '''
+
+                // Check the Flask app logs
+                sh 'cat flask.log'
+                echo 'Prediction request sent and logged to MLflow'
+            }
+        }
 
     }  // ✅ Correctly closing the 'stages' block here
 

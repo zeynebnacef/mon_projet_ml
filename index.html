@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 50px;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Model Prediction</h1>
+        <form id="predictionForm">
+            <label for="features">Enter features (comma-separated):</label>
+            <input type="text" id="features" name="features" placeholder="e.g., 1, 2, 3, 4, 5, 6, 7, 8" required>
+            <button type="submit">Predict</button>
+        </form>
+
+        <div class="result" id="result">
+            <strong>Prediction:</strong> <span id="predictionResult"></span>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('predictionForm').addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent form submission
+
+            // Get input value
+            const input = document.getElementById('features').value;
+
+            // Convert input to an array of numbers
+            const features = input.split(',').map(Number);
+
+            // Validate input
+            if (features.length !== 8 || features.some(isNaN)) {
+                alert('Please enter exactly 8 numeric values, separated by commas.');
+                return;
+            }
+
+            // Send request to Flask API
+            fetch('http://localhost:5005/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ features: features })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Display prediction result
+                document.getElementById('predictionResult').textContent = data.prediction;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('predictionResult').textContent = 'Error: Could not get prediction.';
+            });
+        });
+    </script>
+</body>
+</html>

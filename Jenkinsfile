@@ -50,11 +50,11 @@ pipeline {
 
         // Stage 6: Verify prediction in MLflow
         stage('Verify Prediction in MLflow') {
-    steps {
-        script {
-            // Use Python script to query MLflow
-            def predictionFound = sh(script: '''
-                python3 -c "
+            steps {
+                script {
+                    // Use Python script to query MLflow
+                    def predictionFound = sh(script: '''
+                        python3 -c "
 import mlflow
 from mlflow.tracking import MlflowClient
 
@@ -70,17 +70,17 @@ if experiment:
 else:
     print('Experiment not found in MLflow!')
     exit(1)
-                "
-            ''', returnStdout: true).trim()
+                        "
+                    ''', returnStdout: true).trim()
 
-            if (predictionFound.contains("Prediction found in MLflow!")) {
-                echo 'Prediction successfully logged in MLflow!'
-            } else {
-                error 'Prediction not found in MLflow!'
+                    if (predictionFound.contains("Prediction found in MLflow!")) {
+                        echo 'Prediction successfully logged in MLflow!'
+                    } else {
+                        error 'Prediction not found in MLflow!'
+                    }
+                }
             }
         }
-    }
-
     }
 
     post {

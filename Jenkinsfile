@@ -50,37 +50,37 @@ pipeline {
 
         // Stage 6: Verify prediction in MLflow
         stage('Verify Prediction in MLflow') {
-            steps {
-                script {
-                    // Use Python script to query MLflow
-                    def predictionFound = sh(script: '''
-                        python3 -c "
-                        import mlflow
-                        from mlflow.tracking import MlflowClient
+    steps {
+        script {
+            // Use Python script to query MLflow
+            def predictionFound = sh(script: '''
+                python3 -c "
+import mlflow
+from mlflow.tracking import MlflowClient
 
-                        client = MlflowClient()
-                        experiment = client.get_experiment_by_name('Predictions')
-                        if experiment:
-                            runs = client.search_runs(experiment.experiment_id, order_by=['attributes.start_time DESC'], max_results=1)
-                            if runs:
-                                print('Prediction found in MLflow!')
-                            else:
-                                print('No prediction found in MLflow!')
-                                exit(1)
-                        else:
-                            print('Experiment not found in MLflow!')
-                            exit(1)
-                        "
-                    ''', returnStdout: true).trim()
+client = MlflowClient()
+experiment = client.get_experiment_by_name('Predictions')
+if experiment:
+    runs = client.search_runs(experiment.experiment_id, order_by=['attributes.start_time DESC'], max_results=1)
+    if runs:
+        print('Prediction found in MLflow!')
+    else:
+        print('No prediction found in MLflow!')
+        exit(1)
+else:
+    print('Experiment not found in MLflow!')
+    exit(1)
+                "
+            ''', returnStdout: true).trim()
 
-                    if (predictionFound.contains("Prediction found in MLflow!")) {
-                        echo 'Prediction successfully logged in MLflow!'
-                    } else {
-                        error 'Prediction not found in MLflow!'
-                    }
-                }
+            if (predictionFound.contains("Prediction found in MLflow!")) {
+                echo 'Prediction successfully logged in MLflow!'
+            } else {
+                error 'Prediction not found in MLflow!'
             }
         }
+    }
+
     }
 
     post {

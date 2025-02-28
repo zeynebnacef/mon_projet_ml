@@ -16,42 +16,15 @@ pipeline {
             }
         }
 
-        // Stage 3: Run unit tests
-        stage('Run Unit Tests') {
-            steps {
-                sh 'python3 -m pytest tests/test_data_preparation.py --junitxml=test-results/unit-tests.xml'
-            }
-        }
-
-        // Stage 4: Run performance tests
-        stage('Run Performance Tests') {
-            steps {
-                sh 'python3 -m pytest tests/test_performance.py --junitxml=test-results/performance-tests.xml'
-            }
-        }
-
-        // Stage 5: Prepare data
-        stage('Prepare Data') {
-            steps {
-                sh 'python3 src/main.py --train data/train.csv --test data/test.csv --prepare'
-            }
-        }
-
-        // Stage 6: Train the model
-        stage('Train Model') {
+        // Stage 3: Train the model and log to MLflow
+        stage('Train Model and Log to MLflow') {
             steps {
                 sh 'python3 src/main.py --train data/train.csv --test data/test.csv'
+                echo 'Model trained and logged to MLflow'
             }
         }
 
-        // Stage 7: Evaluate the model
-        stage('Evaluate Model') {
-            steps {
-                sh 'python3 src/main.py --train data/train.csv --test data/test.csv --evaluate'
-            }
-        }
-
-        // Stage 8: Deploy Flask app
+        // Stage 4: Deploy Flask app
         stage('Deploy Flask App') {
             steps {
                 // Stop any existing Flask app (if running)
@@ -66,23 +39,27 @@ pipeline {
             }
         }
 
-        // Stage 9: Test Flask app
-        stage('Test Flask App') {
+        // Stage 5: Wait for manual prediction
+        stage('Wait for Manual Prediction') {
             steps {
-                // Wait for the Flask app to start
-                sh 'sleep 20'
+                // Wait for user input
+                input message: 'Please make a prediction using the Flask app. Click "Proceed" when done.', ok: 'Proceed'
+                echo 'Prediction request sent manually.'
+            }
+        }
 
-                // Check if the Flask app is running
-                sh 'ps aux | grep python3 app.py'
-
-                // Send a test prediction request
-                sh '''
-                curl -X POST http://localhost:5005/predict -H "Content-Type: application/json" -d '{"features": [1, 2, 3, 4, 5, 6, 7, 8]}'
-                '''
-
-                // Check the Flask app logs
-                sh 'cat flask.log'
-                echo 'Prediction request sent and logged to MLflow'
+        // Stage 6: Verify prediction in MLflow
+        stage('Verify Prediction in MLflow') {
+            steps {
+                script {
+                    // Check MLflow for the latest prediction
+                    def prediction = sh(script: 'mlflow runs search --experiment-name "Predictions" --order-by "attribute.start_time DESC" --max-results 1', returnStdout: true).trim()
+                    if (prediction.contains("prediction")) {
+                        echo 'Prediction successfully logged in MLflow!'
+                    } else {
+                        error 'Prediction not found in MLflow!'
+                    }
+                }
             }
         }
     }

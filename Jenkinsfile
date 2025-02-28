@@ -40,13 +40,13 @@ pipeline {
         stage('Deploy Flask App') {
             steps {
                 // Stop any existing Flask app (if running)
-                sh 'pkill -f "python3 app.py" || true'
+            	sh 'pkill -f "python3 app.py" || true'
 
-                // Start the Flask app in the background
-                sh 'python3 app.py &'
-                echo 'Flask app deployed and running on port 5005'
-            }
-        }
+      		  // Start the Flask app in the background
+        	sh 'nohup python3 app.py > flask.log 2>&1 &'
+       		echo 'Flask app deployed and running on port 5005'
+    		}
+	}
 
     }  // ✅ Correctly closing the 'stages' block here
 

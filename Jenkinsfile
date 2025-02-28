@@ -37,6 +37,17 @@ pipeline {
                 sh 'python3 src/main.py --train data/train.csv --test data/test.csv --evaluate'
             }
         }
+        stage('Deploy Flask App') {
+            steps {
+                // Stop any existing Flask app (if running)
+                sh 'pkill -f "python3 app.py" || true'
+
+                // Start the Flask app in the background
+                sh 'python3 app.py &'
+                echo 'Flask app deployed and running on port 5005'
+            }
+        }
+
     }  // ✅ Correctly closing the 'stages' block here
 
     post {  // ✅ 'post' should be outside of 'stages'

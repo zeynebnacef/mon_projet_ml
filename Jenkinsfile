@@ -45,7 +45,7 @@ pipeline {
 
                 // Send a test prediction request
                 sh '''
-                curl -X POST http://localhost:5005/predict -H "Content-Type: application/json" -d '{"features": [1, 2, 3, 4, 5, 6, 7, 8]}'
+                curl -X POST http://localhost:5005 -H "Content-Type: application/json" -d '{"features": [1, 2, 3, 4, 5, 6, 7, 8]}'
                 '''
 
                 // Check the Flask app logs

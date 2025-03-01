@@ -96,35 +96,16 @@ else:
     }
 
     post {
-    success {
-        echo '✅ Pipeline completed successfully! 🎉'
-
-        // Send an email notification
-        mail to: 'bennacefzeyneb@gmail.com',
-             subject: 'Jenkins Pipeline Success: mon_projet_ml',
-             body: 'The pipeline has successfully completed. The Flask app is running and the MLflow prediction was logged.'
-
-        // Archive logs (e.g., Flask logs, training logs)
-        archiveArtifacts artifacts: 'flask.log, mlflow.log', onlyIfSuccessful: true
+        success {
+            emailext subject: "Pipeline Success 🎉",
+                     body: "The Jenkins pipeline has completed successfully!",
+                     to: "bennacefzeyneb@gmail.com"
+        }
+        failure {
+            emailext subject: "Pipeline Failed ❌",
+                     body: "The Jenkins pipeline has failed. Check the logs for more details.",
+                     to: "bennacefzeyneb@gmail.com"
+        }
     }
 
-    failure {
-        echo '❌ Pipeline failed!'
-
-        // Send an email notification
-        mail to: 'your_email@example.com',
-             subject: 'Jenkins Pipeline Failed: mon_projet_ml',
-             body: 'The pipeline encountered an error. Please check the logs for details.'
-
-        // Stop any running Flask app (to prevent multiple instances)
-        sh 'pkill -f "python3 app.py" || true'
-        
-        // Archive logs for debugging
-        archiveArtifacts artifacts: 'flask.log, mlflow.log', onlyIfSuccessful: false
-    }
-
-    always {
-        echo '📌 Pipeline execution completed!'
-    }
-}
 }

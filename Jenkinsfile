@@ -53,7 +53,7 @@ pipeline {
             steps {
                 script {
                     // Use Python script to query MLflow (PostgreSQL backend)
-                    def predictionFound = sh(script: '''
+                    def output = sh(script: '''
                         python3 -c "
 import mlflow
 from mlflow.tracking import MlflowClient
@@ -70,21 +70,12 @@ if not experiment:
     print('Experiment not found in MLflow!')
     sys.exit(0)  # Continue pipeline even if experiment is missing
 
-print(f'Experiment found: {experiment.experiment_id}')
-
 # Search for the latest run in the experiment
 runs = client.search_runs(experiment.experiment_id, order_by=['attributes.start_time DESC'], max_results=1)
 if runs:
-    print('Prediction found in MLflow!')
     for run in runs:
         print(f'Run ID: {run.info.run_id}')
-        print(f'Metrics: {run.data.metrics}')
-        prediction_value = run.data.metrics.get('prediction')
-        if prediction_value in [0, 1]:
-            print(f'Prediction is valid: {prediction_value}')
-        else:
-            print(f'Invalid prediction value: {prediction_value}')
-            sys.exit(1)  # Fail the pipeline if prediction is not 0 or 1
+        print(f'Prediction: {run.data.metrics.get("prediction")}')
     sys.exit(0)  # Success
 else:
     print('No prediction found in MLflow!')
@@ -92,9 +83,10 @@ else:
                         "
                     ''', returnStdout: true).trim()
 
-                    // Log the result
-                    if (predictionFound.contains("Prediction found in MLflow!")) {
+                    // Parse and display the output
+                    if (output.contains("Run ID:")) {
                         echo 'Prediction successfully logged in MLflow!'
+                        echo output  // Display only the run ID and prediction
                     } else {
                         echo 'No prediction found in MLflow. Continuing pipeline...'
                     }

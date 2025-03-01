@@ -79,6 +79,12 @@ if runs:
     for run in runs:
         print(f'Run ID: {run.info.run_id}')
         print(f'Metrics: {run.data.metrics}')
+        prediction_value = run.data.metrics.get('prediction')
+        if prediction_value in [0, 1]:
+            print(f'Prediction is valid: {prediction_value}')
+        else:
+            print(f'Invalid prediction value: {prediction_value}')
+            sys.exit(1)  # Fail the pipeline if prediction is not 0 or 1
     sys.exit(0)  # Success
 else:
     print('No prediction found in MLflow!')

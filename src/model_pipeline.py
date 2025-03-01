@@ -14,6 +14,8 @@ import mlflow
 import mlflow.sklearn
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
+from mlflow.tracking import MlflowClient
+
 def prepare_data(train_path, test_path):
     """
     Prepare the dataset for training and testing.
@@ -203,6 +205,30 @@ def run_mlflow_experiment(train_path, test_path):
         save_model(model)
 
         print(f"✅ Model evaluation completed! Accuracy: {accuracy:.4f}")
+def check_or_assign_model_stage(model_name, version, stage=None):
+    """
+    Check the current stage of a model version and optionally assign a new stage.
+
+    Args:
+        model_name (str): Name of the registered model.
+        version (int): Version of the model.
+        stage (str, optional): Stage to assign (e.g., 'Staging', 'Production'). Defaults to None.
+    """
+    # Initialize the MLflow client
+    client = MlflowClient()
+
+    # Get details of the model version
+    model_version = client.get_model_version(name=model_name, version=version)
+    print(f"Current stage of model '{model_name}' (version {version}): {model_version.current_stage}")
+
+    # Assign a new stage if provided
+    if stage:
+        client.transition_model_version_stage(
+            name=model_name,
+            version=version,
+            stage=stage
+        )
+        print(f"Model '{model_name}' (version {version}) promoted to '{stage}' stage.")
 
 if __name__ == "__main__":
     # Set the paths to your train and test datasets

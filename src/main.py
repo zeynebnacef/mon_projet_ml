@@ -105,6 +105,12 @@ if __name__ == "__main__":
     parser.add_argument("--predict", action="store_true", help="Run a prediction using a trained model")
 
     args = parser.parse_args()
+   # Example: Check or assign stage for model "gbm_model" version 48
+    check_or_assign_model_stage(
+        model_name="gbm_model",
+        version=48,
+        stage="Staging"  # Change to 'Production' if needed
+    )
 
     # Validate that --train and --test are required unless --predict is used
     if not args.predict and (args.train is None or args.test is None):

@@ -23,6 +23,24 @@ pipeline {
                 echo 'Model trained and logged to MLflow'
             }
         }
+          // Stage 4: Check or assign model stage
+        stage('Check or Assign Model Stage') {
+            steps {
+                script {
+                    // Call the function to check or assign model stage
+                    sh '''
+                        python3 -c "
+from model_pipeline import check_or_assign_model_stage
+check_or_assign_model_stage(
+    model_name='gbm_model',
+    version=48,
+    stage='Staging'  # Change to 'Production' if needed
+)
+                        "
+                    '''
+                }
+            }
+        }
 
         // Stage 4: Deploy Flask app
         stage('Deploy Flask App') {

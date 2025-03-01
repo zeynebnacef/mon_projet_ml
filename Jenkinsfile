@@ -79,7 +79,6 @@ if runs:
     for run in runs:
         print(f'Run ID: {run.info.run_id}')
         print(f'Metrics: {run.data.metrics}')
-        print(f'Prediction: {run.data.metrics.get("prediction")}')
     sys.exit(0)  # Success
 else:
     print('No prediction found in MLflow!')

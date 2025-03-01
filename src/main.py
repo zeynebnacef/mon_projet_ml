@@ -5,6 +5,7 @@ from model_pipeline import prepare_data, train_model, save_model, load_model, ev
 from sklearn.metrics import accuracy_score
 import numpy as np
 
+from model_pipeline import check_or_assign_model_stage
 # Configure MLflow to use PostgreSQL as the backend store
 
 mlflow.set_tracking_uri("postgresql://mlflow_user:zeyneb@localhost:5432/mlflow_db2")
@@ -105,15 +106,17 @@ if __name__ == "__main__":
     parser.add_argument("--predict", action="store_true", help="Run a prediction using a trained model")
 
     args = parser.parse_args()
-   # Example: Check or assign stage for model "gbm_model" version 48
+
+    # Validate that --train and --test are required unless --predict is used
+    if not args.predict and (args.train is None or args.test is None):
+        parser.error("❌ The arguments --train and --test are required unless --predict is used.")
+
+    # Check or assign model stage
     check_or_assign_model_stage(
         model_name="gbm_model",
         version=48,
         stage="Staging"  # Change to 'Production' if needed
     )
 
-    # Validate that --train and --test are required unless --predict is used
-    if not args.predict and (args.train is None or args.test is None):
-        parser.error("❌ The arguments --train and --test are required unless --predict is used.")
-
+    # Call the main function
     main(args.train, args.test, prepare_only_flag=args.prepare, predict_flag=args.predict)

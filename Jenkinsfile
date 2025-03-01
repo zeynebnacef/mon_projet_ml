@@ -49,12 +49,11 @@ pipeline {
         }
 
         // Stage 6: Verify prediction in MLflow (PostgreSQL backend)
-        stage('Verify Prediction in MLflow') {
-            steps {
-                script {
-                    // Use Python script to query MLflow (PostgreSQL backend)
-                    def predictionFound = sh(script: '''
-                        python3 -c "
+       stage('Verify Prediction in MLflow') {
+    steps {
+        script {
+            def predictionFound = sh(script: '''
+                python3 -c "
 import mlflow
 from mlflow.tracking import MlflowClient
 import sys
@@ -80,18 +79,18 @@ if runs:
 else:
     print('No prediction found in MLflow!')
     sys.exit(0)  # Continue pipeline even if no prediction is found
-                        "
-                    ''', returnStdout: true).trim()
+                "
+            ''', returnStdout: true).trim()
 
-                    // Log the result
-                    if (predictionFound.contains("Prediction found in MLflow!")) {
-                        echo 'Prediction successfully logged in MLflow!'
-                    } else {
-                        echo 'No prediction found in MLflow. Continuing pipeline...'
-                    }
-                }
+            // Log the result
+            if (predictionFound.contains("Prediction found in MLflow!")) {
+                echo 'Prediction successfully logged in MLflow!'
+            } else {
+                echo 'No prediction found in MLflow. Continuing pipeline...'
             }
         }
+    }
+}
     }
 
     post {

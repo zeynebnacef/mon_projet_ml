@@ -75,7 +75,7 @@ runs = client.search_runs(experiment.experiment_id, order_by=['attributes.start_
 if runs:
     for run in runs:
         print(f'Run ID: {run.info.run_id}')
-        print(f'Prediction: {run.data.metrics.get("prediction")}')
+        print(f'Metrics: {run.data.metrics}')
     sys.exit(0)  # Success
 else:
     print('No prediction found in MLflow!')

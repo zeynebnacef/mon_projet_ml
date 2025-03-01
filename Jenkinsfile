@@ -70,12 +70,16 @@ if not experiment:
     print('Experiment not found in MLflow!')
     sys.exit(0)  # Continue pipeline even if experiment is missing
 
+print(f'Experiment found: {experiment.experiment_id}')
+
 # Search for the latest run in the experiment
 runs = client.search_runs(experiment.experiment_id, order_by=['attributes.start_time DESC'], max_results=1)
 if runs:
     print('Prediction found in MLflow!')
     for run in runs:
-        print(f'Run ID: {run.info.run_id}, Prediction: {run.data.metrics.get["prediction"]}')
+        print(f'Run ID: {run.info.run_id}')
+        print(f'Metrics: {run.data.metrics}')
+        print(f'Prediction: {run.data.metrics.get("prediction")}')
     sys.exit(0)  # Success
 else:
     print('No prediction found in MLflow!')

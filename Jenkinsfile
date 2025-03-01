@@ -30,7 +30,7 @@ pipeline {
                     // Call the function to check or assign model stage
                     sh '''
                         python3 -c "
-from model_pipeline import check_or_assign_model_stage
+from src.model_pipeline import check_or_assign_model_stage
 check_or_assign_model_stage(
     model_name='gbm_model',
     version=48,

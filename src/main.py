@@ -1,11 +1,9 @@
 import argparse
 import mlflow
 import mlflow.sklearn
-from model_pipeline import prepare_data, train_model, save_model, load_model, evaluate_model, predict
+from model_pipeline import prepare_data, train_model, save_model, check_or_assign_model_stage, load_model, evaluate_model, predict
 from sklearn.metrics import accuracy_score
 import numpy as np
-
-from model_pipeline import check_or_assign_model_stage
 # Configure MLflow to use PostgreSQL as the backend store
 
 mlflow.set_tracking_uri("postgresql://mlflow_user:zeyneb@localhost:5432/mlflow_db2")

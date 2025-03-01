@@ -95,7 +95,7 @@ def main(train_path, test_path, prepare_only_flag=False, predict_flag=False):
             # Check or assign model stage after registration
             check_or_assign_model_stage(
                 model_name="gbm_model",
-                version=1,  # Use version 1 or dynamically determine the latest version
+                version=None,  # Automatically use the latest version
                 stage="Staging"  # Change to 'Production' if needed
             )
 

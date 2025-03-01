@@ -204,32 +204,42 @@ def run_mlflow_experiment(train_path, test_path):
         # Save the model
         save_model(model)
 
-        print(f"✅ Model evaluation completed! Accuracy: {accuracy:.4f}")
-def check_or_assign_model_stage(model_name, version, stage=None):
+def check_or_assign_model_stage(model_name, version=None, stage=None):
     """
     Check the current stage of a model version and optionally assign a new stage.
 
     Args:
         model_name (str): Name of the registered model.
-        version (int): Version of the model.
+        version (int, optional): Version of the model. If None, the latest version is used.
         stage (str, optional): Stage to assign (e.g., 'Staging', 'Production'). Defaults to None.
     """
     # Initialize the MLflow client
     client = MlflowClient()
 
-    # Get details of the model version
-    model_version = client.get_model_version(name=model_name, version=version)
-    print(f"Current stage of model '{model_name}' (version {version}): {model_version.current_stage}")
+    try:
+        # If version is not provided, use the latest version
+        if version is None:
+            versions = client.get_latest_versions(model_name)
+            if not versions:
+                print(f"❌ No versions found for model '{model_name}'.")
+                return
+            version = versions[0].version
+            print(f"🔍 Using the latest version: {version}")
 
-    # Assign a new stage if provided
-    if stage:
-        client.transition_model_version_stage(
-            name=model_name,
-            version=version,
-            stage=stage
-        )
-        print(f"Model '{model_name}' (version {version}) promoted to '{stage}' stage.")
+        # Get details of the model version
+        model_version = client.get_model_version(name=model_name, version=version)
+        print(f"✅ Current stage of model '{model_name}' (version {version}): {model_version.current_stage}")
 
+        # Assign a new stage if provided
+        if stage:
+            client.transition_model_version_stage(
+                name=model_name,
+                version=version,
+                stage=stage
+            )
+            print(f"🚀 Model '{model_name}' (version {version}) promoted to '{stage}' stage.")
+    except Exception as e:
+        print(f"❌ Error: {e}")
 if __name__ == "__main__":
     # Set the paths to your train and test datasets
     train_path = "path/to/train.csv"

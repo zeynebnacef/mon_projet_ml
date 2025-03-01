@@ -111,7 +111,7 @@ if __name__ == "__main__":
 
     # Check or assign model stage
     check_or_assign_model_stage(
-        model_name="gbm_model",
+        model_name="model",
         version=48,
         stage="Staging"  # Change to 'Production' if needed
     )

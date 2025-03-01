@@ -32,7 +32,7 @@ pipeline {
                         python3 -c "
 from src.model_pipeline import check_or_assign_model_stage
 check_or_assign_model_stage(
-    model_name='gbm_model',
+    model_name='model',
     version=48,
     stage='Staging'  # Change to 'Production' if needed
 )

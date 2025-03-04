@@ -1,33 +1,41 @@
 version: '3.7'
 services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    ports:
+      - "8080:8080"  # Jenkins web UI
+      - "50000:50000"  # Jenkins agent communication
+    volumes:
+      - jenkins_home:/var/jenkins_home  # Persist Jenkins data
+    environment:
+      - JAVA_OPTS=-Xmx4g -Xms2g  # Allocate 4GB max memory and 2GB initial memory
+    networks:
+      - elk-jenkins
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.10.0
     container_name: elasticsearch
-    restart: always
-    environment:
-      - discovery.type=single-node
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
     ports:
       - "9201:9200"
-    volumes:
-      - elasticsearch_data:/usr/share/elasticsearch/data
     networks:
       - elk-jenkins
 
   kibana:
     image: docker.elastic.co/kibana/kibana:7.10.0
     container_name: kibana
-    restart: always
     ports:
       - "5602:5601"
     environment:
       ELASTICSEARCH_HOSTS: http://elasticsearch:9200
     depends_on:
       elasticsearch:
-        condition: service_started
+        condition: service_healthy
     networks:
       - elk-jenkins
+
 volumes:
+  jenkins_home:  # Volume for Jenkins data
   elasticsearch_data:
 
 networks:

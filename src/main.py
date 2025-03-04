@@ -4,10 +4,36 @@ import mlflow.sklearn
 from model_pipeline import prepare_data, train_model, save_model, check_or_assign_model_stage, load_model, evaluate_model, predict
 from sklearn.metrics import accuracy_score
 import numpy as np
+from elasticsearch import Elasticsearch
+import time
 
 # Configure MLflow to use PostgreSQL as the backend store
 mlflow.set_tracking_uri("postgresql://mlflow_user:zeyneb@localhost:5432/mlflow_db2")
 mlflow.set_experiment("new_experiment")
+
+def wait_for_elasticsearch(max_retries=5, delay_seconds=5):
+    retries = 0
+    while retries < max_retries:
+        try:
+            es = Elasticsearch("http://elasticsearch:9201")
+            if es.ping():
+                print("✅ Elasticsearch is ready!")
+                return es
+        except ConnectionError as e:
+            retries += 1
+            print(f"⚠️ Elasticsearch not ready, retrying ({retries}/{max_retries})...")
+            time.sleep(delay_seconds)
+    raise Exception("❌ Could not connect to Elasticsearch after multiple retries.")
+
+# Call this function before logging to Elasticsearch
+es = wait_for_elasticsearch()
+
+def log_to_elasticsearch(index, body):
+    try:
+        es.index(index=index, document=body)
+        print(f"✅ Logged to Elasticsearch: {body}")
+    except Exception as e:
+        print(f"❌ Failed to log to Elasticsearch: {e}")
 
 def prepare_only(train_path, test_path):
     """
@@ -22,6 +48,14 @@ def prepare_only(train_path, test_path):
     with mlflow.start_run():
         mlflow.log_param("X_train_shape", X_train.shape)
         mlflow.log_param("X_test_shape", X_test.shape)
+
+    # Send logs to Elasticsearch
+    log_to_elasticsearch("mlflow-metrics", {
+        "step": "data_preparation",
+        "X_train_shape": X_train.shape,
+        "X_test_shape": X_test.shape,
+        "timestamp": "2023-10-01T12:00:00Z"  # Replace with a dynamic timestamp if needed
+    })
 
 def main(train_path, test_path, prepare_only_flag=False, predict_flag=False):
     if prepare_only_flag:
@@ -42,6 +76,14 @@ def main(train_path, test_path, prepare_only_flag=False, predict_flag=False):
             # Register the model in the Model Registry
             model_uri = f"runs:/{mlflow.active_run().info.run_id}/model"
             mlflow.register_model(model_uri, "gbm_model")
+
+            # Send logs to Elasticsearch
+            log_to_elasticsearch("mlflow-metrics", {
+                "step": "prediction",
+                "model_uri": model_uri,
+                "prediction_result": predict(sample_features),
+                "timestamp": "2023-10-01T12:00:00Z"  # Replace with a dynamic timestamp if needed
+            })
 
             # Make a prediction
             prediction = predict(sample_features)
@@ -91,6 +133,14 @@ def main(train_path, test_path, prepare_only_flag=False, predict_flag=False):
             print("\n📊 Evaluating the model...")
             evaluate_model(model, X_test, y_test)
             print("✅ Model evaluation successful!")
+
+            # Send logs to Elasticsearch
+            log_to_elasticsearch("mlflow-metrics", {
+                "step": "model_training",
+                "accuracy": accuracy,
+                "model_uri": model_uri,
+                "timestamp": "2023-10-01T12:00:00Z"  # Replace with a dynamic timestamp if needed
+            })
 
             # Check or assign model stage after registration
             check_or_assign_model_stage(

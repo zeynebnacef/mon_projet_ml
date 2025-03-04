@@ -1,4 +1,5 @@
 import pandas as pd
+from elasticsearch import Elasticsearch 
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -15,6 +16,15 @@ import mlflow.sklearn
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
 from mlflow.tracking import MlflowClient
+
+es = Elasticsearch("http://elasticsearch:9201")  # Assurez-vous qu'Elasticsearch est en cours d'exécution
+
+def log_to_elasticsearch(index, body):
+    """
+    Envoyer des logs vers Elasticsearch.
+    """
+    es.index(index=index, body=body)
+
 
 def prepare_data(train_path, test_path):
     """
@@ -147,12 +157,20 @@ def evaluate_model(model, X_test, y_test):
     plt.xlabel("Predicted")
     plt.ylabel("Actual")
     mlflow.log_figure(plt.gcf(), "confusion_matrix.png")
+   # Envoyer les logs d'évaluation à Elasticsearch
+    log_to_elasticsearch("mlflow-metrics", {
+        "step": "model_evaluation",
+        "accuracy": accuracy,
+        "classification_report": report,
+        "timestamp": "2023-10-01T12:00:00Z"  # Remplacez par un timestamp dynamique si nécessaire
+    })
 
     # Print results
     print(f"\n✅ Evaluation Completed!")
     print(f"📊 Accuracy: {accuracy:.4f}")
     print(f"📊 Classification Report:\n{classification_report(y_test, y_pred)}")
     print(f"📊 Confusion Matrix:\n{cm}")
+
 
     return accuracy, report, cm
 
@@ -173,6 +191,13 @@ def predict(features):
     model = joblib.load("gbm_model.joblib")
     prediction = model.predict(features)
     print(f"\n✅ Prediction Completed! Prediction: {prediction}")
+  # Envoyer les logs de prédiction à Elasticsearch
+    log_to_elasticsearch("mlflow-metrics", {
+        "step": "prediction",
+        "features": features.tolist(),
+        "prediction": prediction.tolist(),
+        "timestamp": "2023-10-01T12:00:00Z"  # Remplacez par un timestamp dynamique si nécessaire
+    })
     return prediction
 
 def log_metrics_to_mlflow(accuracy, report, conf_matrix):

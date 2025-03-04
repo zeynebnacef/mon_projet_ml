@@ -97,10 +97,15 @@ else:
 
     post {
         success {
-            emailext subject: "Pipeline Success 🎉",
-                     body: "The Jenkins pipeline has completed successfully!",
-                     to: "bennacefzeyneb@gmail.com"
+        script {
+            echo "Pipeline finished successfully. Sending email..."
         }
+        emailext(
+            subject: "Pipeline Success 🎉",
+            body: "The Jenkins pipeline has completed successfully!",
+            to: "bennacefzeyneb@gmail.com"
+        )
+    }
         failure {
             emailext subject: "Pipeline Failed ❌",
                      body: "The Jenkins pipeline has failed. Check the logs for more details.",

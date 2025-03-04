@@ -3,9 +3,10 @@ import joblib
 import numpy as np
 import mlflow
 import mlflow.pyfunc
-
+from flask_cors import CORS
 # Initialize Flask app
 app = Flask(__name__)
+CORS(app)
 
 mlflow.set_tracking_uri("postgresql://mlflow_user:zeyneb@localhost:5432/mlflow_db2")
 mlflow.set_experiment("Predictions")  # Create a dedicated experiment for predictions

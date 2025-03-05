@@ -6,28 +6,27 @@ from sklearn.metrics import accuracy_score
 import numpy as np
 from elasticsearch import Elasticsearch
 import time
-
+import logging
 # Configure MLflow to use PostgreSQL as the backend store
 mlflow.set_tracking_uri("postgresql://mlflow_user:zeyneb@localhost:5432/mlflow_db2")
 mlflow.set_experiment("new_experiment")
 
-def wait_for_elasticsearch(max_retries=5, delay_seconds=5):
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+
+def wait_for_elasticsearch(max_retries=10, delay_seconds=10):
     retries = 0
     while retries < max_retries:
         try:
-            es = Elasticsearch("http://elasticsearch:9201")
+            es = Elasticsearch("http://localhost:9201")
             if es.ping():
-                print("✅ Elasticsearch is ready!")
+                logging.info("✅ Elasticsearch is ready!")
                 return es
-        except ConnectionError as e:
+        except Exception as e:
             retries += 1
-            print(f"⚠️ Elasticsearch not ready, retrying ({retries}/{max_retries})...")
+            logging.warning(f"⚠️ Elasticsearch not ready, retrying ({retries}/{max_retries})...")
             time.sleep(delay_seconds)
     raise Exception("❌ Could not connect to Elasticsearch after multiple retries.")
-
-# Call this function before logging to Elasticsearch
-es = wait_for_elasticsearch()
-
 def log_to_elasticsearch(index, body):
     try:
         es.index(index=index, document=body)

@@ -17,7 +17,7 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 
 from mlflow.tracking import MlflowClient
 
-es = Elasticsearch("http://elasticsearch:9201")  # Assurez-vous qu'Elasticsearch est en cours d'exécution
+es = Elasticsearch("http://localhost:9201")  # Assurez-vous qu'Elasticsearch est en cours d'exécution
 
 def log_to_elasticsearch(index, body):
     """

@@ -1,23 +1,21 @@
 version: '3.7'
 services:
-  jenkins:
-    image: jenkins/jenkins:lts
-    container_name: jenkins
-    ports:
-      - "8080:8080"  # Jenkins web UI
-      - "50000:50000"  # Jenkins agent communication
-    volumes:
-      - jenkins_home:/var/jenkins_home  # Persist Jenkins data
-    environment:
-      - JAVA_OPTS=-Xmx4g -Xms2g  # Allocate 4GB max memory and 2GB initial memory
-    networks:
-      - elk-jenkins
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.10.0
     container_name: elasticsearch
     ports:
       - "9201:9200"
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
     networks:
       - elk-jenkins
 
@@ -35,7 +33,7 @@ services:
       - elk-jenkins
 
 volumes:
-  jenkins_home:  # Volume for Jenkins data
+
   elasticsearch_data:
 
 networks:

@@ -13,6 +13,8 @@ mlflow.set_experiment("new_experiment")
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
+# Initialize Elasticsearch client
+es = Elasticsearch("http://localhost:9201")
 
 def wait_for_elasticsearch(max_retries=10, delay_seconds=10):
     retries = 0
